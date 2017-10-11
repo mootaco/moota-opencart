@@ -1,0 +1,8 @@
+{
+  "emmet.syntaxProfiles": {
+    "tpl": "php"
+  },
+  "files.associations": {
+    "*.tpl": "php"
+  }
+}
