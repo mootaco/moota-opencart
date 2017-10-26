@@ -1,0 +1,30 @@
+{
+    "name": "mootaco/moota-opencart",
+    "description": "Moota Payment Gateway plugin for OpenCart",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Aprilus Lumbantoruan",
+            "email": "i@pilus.me"
+        }
+    ],
+    "minimum-stability": "stable",
+    "config": {
+        "vendor-dir": "system/library/mootapay/"
+    },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/mootaco/php-sdk.git"
+        }
+    ],
+    "require": {
+        "moota/moota-sdk": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "Moota\\OpenCart\\": "presta"
+        }
+    }
+}

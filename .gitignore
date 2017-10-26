@@ -1,1 +1,5 @@
-system/library/moota-sdk/vendor/
+system/library/
+
+*.db
+.DS_Store
+Thumbs.db
