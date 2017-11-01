@@ -1,8 +1,10 @@
 {
   "emmet.syntaxProfiles": {
-    "tpl": "php"
+    "tpl": "php",
+    "twig": "html"
   },
   "files.associations": {
-    "*.tpl": "php"
+    "*.tpl": "php",
+    "*.twig": "html"
   }
 }
