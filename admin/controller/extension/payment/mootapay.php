@@ -13,6 +13,11 @@ class ControllerExtensionPaymentMootapay extends Controller
     private $error = array();
 
     public function index() {
+        $baseUrl = explode('/admin/index.php', $_SERVER['REQUEST_URI']);
+        $baseUrl = $_SERVER['HTTP_HOST'] . current($baseUrl) . '/index.php';
+        $baseUrl = empty($_SERVER['HTTPS'])
+            ? "http://{$baseUrl}" : "https://{$baseUrl}";
+
         $this->load->language('extension/payment/mootapay');
 
         $this->document->setTitle('MOOTA');
@@ -66,6 +71,8 @@ class ControllerExtensionPaymentMootapay extends Controller
             'payment_mootapay_apikey' => MootaConfig::$apiKey,
             'payment_mootapay_apitimeout' => MootaConfig::$apiTimeout,
             'payment_mootapay_env' => MootaConfig::$sdkMode,
+            'payment_mootapay_push_url' => $baseUrl
+                . '?route=push/moota',
 
             'header' => $this->load->controller('common/header'),
             'column_left' => $this->load->controller('common/column_left'),
@@ -82,29 +89,29 @@ class ControllerExtensionPaymentMootapay extends Controller
                 "user_token={$userToken}&type=payment",
                 true
             ),
-        );
 
-        $data['breadcrumbs'] = array(
-            array(
-                'text' => $this->language->get('text_home'),
-                'href' => $this->url->link(
-                    'common/dashboard', "user_token={$userToken}", true
+            'breadcrumbs' => array(
+                array(
+                    'text' => $this->language->get('text_home'),
+                    'href' => $this->url->link(
+                        'common/dashboard', "user_token={$userToken}", true
+                    ),
                 ),
-            ),
-            array(
-                'text' => $this->language->get('text_extension'),
-                'href' => $this->url->link(
-                    'marketplace/extension',
-                    "user_token={$userToken}&type=payment",
-                    true
+                array(
+                    'text' => $this->language->get('text_extension'),
+                    'href' => $this->url->link(
+                        'marketplace/extension',
+                        "user_token={$userToken}&type=payment",
+                        true
+                    ),
                 ),
-            ),
-            array(
-                'text' => 'Moota',
-                'href' => $this->url->link(
-                    'extension/payment/mootapay',
-                    "user_token={$userToken}",
-                    true
+                array(
+                    'text' => 'Moota',
+                    'href' => $this->url->link(
+                        'extension/payment/mootapay',
+                        "user_token={$userToken}",
+                        true
+                    ),
                 ),
             ),
         );

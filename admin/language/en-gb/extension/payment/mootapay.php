@@ -24,6 +24,7 @@ $_['entry_apitimeout'] = 'API Timeout';
 $_['entry_env'] = 'SDK Environment';
 $_['entry_env_prod'] = 'Live';
 $_['entry_env_dev'] = 'Sandbox';
+$_['entry_push_url'] = 'Moota Push Notification URL';
 
 // Error
 $_['error_permission'] = 'Warning: You do not have permission to modify the MootaPay payment module';
@@ -40,3 +41,4 @@ Dapatkan API Key melalui:
 EOS;
 
 $_['help_apitimeout'] = 'Dalam detik';
+$_['help_push_url'] = 'Masuk halaman edit bank di moota > tab notifikasi > edit "API Push Notif" > lalu masukkan url ini';
