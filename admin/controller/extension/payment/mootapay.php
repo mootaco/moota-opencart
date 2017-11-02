@@ -1,12 +1,14 @@
 <?php
 
-require_once __DIR__ . '/system/library/moota-pay/vendor/autoload.php';
+require_once __DIR__ . '/../../../..'
+    . '/system/library/moota-pay/vendor/autoload.php';
 
 use Moota\SDK\Config as MootaConfig;
 
 class ControllerExtensionPaymentMootapay extends Controller
 {
-    const SETTING_KEY = 'payment_mootapay';
+    const SETTING_CODE = 'payment_mootapay';
+    const SETTING_KEY = 'payment_mootapay_serialized';
 
     private $error = array();
 
@@ -15,75 +17,97 @@ class ControllerExtensionPaymentMootapay extends Controller
 
         $this->document->setTitle('MOOTA');
 
+        // load setting data from settings table
+        // that has a `code` of: `payment_mootapay` (SETTING_CODE)
         $this->load->model('setting/setting');
+
+        $userToken = $this->session->data['user_token'];
+        $session = $this->session;
+        $request = $this->request;
+        $response = $this->response;
 
         MootaConfig::fromArray( unserialize( $this->config->get(
             self::SETTING_KEY
         ) ) );
 
-        if (
-            $this->request->server['REQUEST_METHOD'] == 'POST'
-        ) {
-            $this->model_setting_setting->editSetting(
-                'payment_mootapay', $this->request->post
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $serverAddress = $_POST['payment_mootapay_env'] === 'production'
+                ? 'app.moota.co' : 'moota.matamerah.com';
+
+            $config = array(
+                'apiKey' => $_POST['payment_mootapay_apikey'],
+                'apiTimeout' => $_POST['payment_mootapay_apitimeout'],
+                'sdkMode' => $_POST['payment_mootapay_env'],
+                'serverAddress' => $serverAddress,
+                'useUniqueCode' => MootaConfig::$useUniqueCode,
+                'uqCodePreffix' => MootaConfig::$uqCodePreffix,
+                'uqCodeSuffix' => MootaConfig::$uqCodeSuffix,
             );
 
-            $this->session->data['success'] = $this->language
+            $this->model_setting_setting->editSetting(
+                self::SETTING_CODE, array(
+                    self::SETTING_KEY => serialize($config)
+                )
+            );
+
+            MootaConfig::fromArray($config);
+
+            $session->data['success'] = $this->language
                 ->get('text_success');
 
             $this->response->redirect($this->url->link(
                 'marketplace/extension',
-                'user_token=' . $this->session->data['user_token'],
+                "user_token={$userToken}&type=payment",
                 true
             ));
         }
 
-        if ( isset(
-            $this->request->post['payment_mootapay_payment_gateway']
-        ) ) {
-            $data['payment_mootapay_payment_gateway'] = $this->request
-                ->post['payment_mootapay_payment_gateway'];
-        } else {
-            $data['payment_mootapay_payment_gateway'] = $this->config->get('payment_mootapay_payment_gateway');
-        }
+        $data = array(
+            'payment_mootapay_apikey' => MootaConfig::$apiKey,
+            'payment_mootapay_apitimeout' => MootaConfig::$apiTimeout,
+            'payment_mootapay_env' => MootaConfig::$sdkMode,
 
-        $data['breadcrumbs'] = array();
+            'header' => $this->load->controller('common/header'),
+            'column_left' => $this->load->controller('common/column_left'),
+            'footer' => $this->load->controller('common/footer'),
 
-        $data['breadcrumbs'][] = array(
-            'text' => $this->language->get('text_home'),
-            'href' => $this->url->link('common/dashboard', 'user_token=' . $this->session->data['user_token'], true)
-        );
-
-        $data['breadcrumbs'][] = array(
-            'text' => $this->language->get('text_extension'),
-            'href' => $this->url->link(
-                'marketplace/extension',
-                'user_token=' . $this->session->data['user_token'],
+            'action' => $this->url->link(
+                'extension/payment/mootapay',
+                "user_token={$userToken}",
                 true
-            )
+            ),
+
+            'cancel' => $this->url->link(
+                'marketplace/extension',
+                "user_token={$userToken}&type=payment",
+                true
+            ),
         );
 
-        $data['breadcrumbs'][] = array(
-            'text' => 'MOOTA',
-            'href' => $this->url->link('extension/payment/mootapay', 'user_token=' . $this->session->data['user_token'], true)
+        $data['breadcrumbs'] = array(
+            array(
+                'text' => $this->language->get('text_home'),
+                'href' => $this->url->link(
+                    'common/dashboard', "user_token={$userToken}", true
+                ),
+            ),
+            array(
+                'text' => $this->language->get('text_extension'),
+                'href' => $this->url->link(
+                    'marketplace/extension',
+                    "user_token={$userToken}&type=payment",
+                    true
+                ),
+            ),
+            array(
+                'text' => 'Moota',
+                'href' => $this->url->link(
+                    'extension/payment/mootapay',
+                    "user_token={$userToken}",
+                    true
+                ),
+            ),
         );
-
-        $data['action'] = $this->url->link(
-            'extension/payment/mootapay',
-            'user_token=' . $this->session->data['user_token'],
-            true
-        );
-
-        $data['cancel'] = $this->url->link(
-            'marketplace/extension',
-            'user_token=' . $this->session->data['user_token']
-                . '&type=payment',
-            true
-        );
-
-        $data['header'] = $this->load->controller('common/header');
-        $data['column_left'] = $this->load->controller('common/column_left');
-        $data['footer'] = $this->load->controller('common/footer');
 
         $this->response->setOutput(
             $this->load->view('extension/payment/mootapay', $data)
@@ -92,7 +116,7 @@ class ControllerExtensionPaymentMootapay extends Controller
 
     public function install() {
         $this->load->model('setting/setting');$this->model_setting_setting->editSetting(
-            self::SETTING_KEY, array(
+            self::SETTING_CODE, array(
                 self::SETTING_KEY => serialize(array(
                     'apiKey' => MootaConfig::$apiKey,
                     'apiTimeout' => MootaConfig::$apiTimeout,
@@ -107,6 +131,6 @@ class ControllerExtensionPaymentMootapay extends Controller
     }
 
     public function uninstall() {
-        $this->load->model('setting/setting');$this->model_setting_setting->deleteSetting(self::SETTING_KEY);
+        $this->load->model('setting/setting');$this->model_setting_setting->deleteSetting(self::SETTING_CODE);
     }
 }

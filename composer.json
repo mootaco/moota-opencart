@@ -24,7 +24,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Moota\\OpenCart\\": "presta"
+            "Moota\\OpenCart\\": "system/library/moota-pay/opencart"
         }
     }
 }
