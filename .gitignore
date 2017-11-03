@@ -1,4 +1,4 @@
-system/library/
+system/library/moota-pay/vendor/
 
 *.db
 .DS_Store

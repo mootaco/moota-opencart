@@ -1,5 +1,10 @@
 <?php
 
+require_once __DIR__ . '/../../..'
+    . '/system/library/moota-pay/vendor/autoload.php';
+
+use Moota\Opencart\OrderFetcher;
+use Moota\Opencart\OrderMatcher;
 use Moota\SDK\Config as MootaConfig;
 use Moota\SDK\PushCallbackHandler;
 
@@ -7,6 +12,10 @@ class ControllerPushMoota extends Controller
 {
     public function index()
     {
+        $this->load->model('account/customer');
+        $this->load->model('checkout/order');
+        $this->load->model('setting/setting');
+
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             http_response_code(405);
 
@@ -14,40 +23,83 @@ class ControllerPushMoota extends Controller
             return;
         }
 
-        // $this->load->model('checkout/order');
+        $orderPaidStatusId = $this->model_setting_setting->getSettingValue(
+            'config_complete_status'
+        );
+        $orderPaidStatusId = json_decode($orderPaidStatusId);
+        $orderPaidStatusId = max($orderPaidStatusId);
 
-        $sql = 'SELECT `value` FROM `'. DB_PREFIX . 'setting` '
-            . "WHERE `key` = 'config_complete_status'";
+        MootaConfig::fromArray( unserialize( $this->config->get(
+            'payment_mootapay_serialized'
+        ) ) );
 
-        $query = $this->db->query($sql);
+        $handler = PushCallbackHandler::createDefault()
+            ->setTransactionFetcher(new OrderFetcher( $this->db ))
+            ->setPaymentMatcher(new OrderMatcher)
+        ;
 
-        $statuses = array();
+        $payments = $handler->handle();
+        $statusData = array(
+            'status' => 'not-ok', 'error' => 'No matching order found'
+        );
 
-        foreach ($query->rows as $row) {
-            $tmp = $row['value'];
-            $tmp = str_replace(['[', '"', ']'], '', $tmp);
+        if ( count( $payments ) > 0 ) {
+            foreach ($payments as $payment) {
+                $this->model_account_customer->addTransaction(
+                    $payment['customerId'],
+                    'MootaPay: Payment Applied',
+                    $payment['mootaAmount'],
+                    $payment['orderId']
+                );
 
-            $statuses = array_merge($statuses, explode(',', $tmp));
+                if ( $payment['mootaAmount'] >= $payment['orderAmount'] ) {
+                    $this->model_checkout_order->addOrderHistory(
+                        $payment['orderId'],
+                        $orderPaidStatusId,
+                        'MootaPay: Order fully paid',
+                        false, // notify
+                        false // override
+                    );
+                }
+            }
+
+            $statusData = array('status' => 'ok', 'count' => count($payments));
         }
 
-        $statuses = array_unique($statuses, SORT_NUMERIC);
-        asort($statuses);
+        header('Content-Type: application/json');
 
-        $statuses = implode(', ', $statuses);
+        echo json_encode($payments);
+    }
 
-        $sql = "
-            SELECT `order_id`, `invoice_no`, `invoice_prefix`
-                , `store_id`, `total`
-            FROM `". DB_PREFIX . "order`
-            WHERE `order_status_id` NOT IN ($statuses)";
+    /**
+     * Add a transaction for a customer's order.
+     *
+     * Copied from admin's Customer model,
+     * because OOP according to opencart core dev
+     * means duplicating so much crap in so many places.
+     *
+     * We can't actually access admin's Customer model
+     * via any catalog Controller because frak you extension developer.
+     *
+     * @param integer|string $customer_id
+     * @param string $description
+     * @param float|string $amount
+     * @param integer|string $order_id
+     * @return void
+     */
+    protected function addCustomerOrderTransaction(
+        $customer_id, $description = '', $amount = '', $order_id = 0
+    ) {
+        $description = $this->db->escape($description);
+        $amount = (float) $amount;
 
-        $orders = $this->db->query($sql)->rows;
-
-        echo '<pre>';
-        var_dump(compact(
-            'statuses', 'sql', 'orders'
-        ));
-        echo '</pre>';
-        exit;
+        return $this->db->query("
+            INSERT INTO " . DB_PREFIX . "customer_transaction 
+            SET customer_id = '{$customer_id}'
+                , order_id = '{$order_id}'
+                , description = '{$description}'
+                , amount = '{$amount}'
+                , date_added = NOW()"
+        );
     }
 }
