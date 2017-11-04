@@ -1,5 +1,7 @@
+mootapay.ocmod/
 system/library/moota-pay/vendor/
 
 *.db
 .DS_Store
 Thumbs.db
+mootapay.ocmod.zip
