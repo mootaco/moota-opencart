@@ -43,6 +43,7 @@ class OrderMatcher implements MatchPayments
                         $tmpPayment['account_number']
                     )),
                     'orderId' => $order['order_id'],
+                    'storeId' => $order['store_id'],
                     'customerId' => $order['customer_id'],
                     'mootaId' => $tmpPayment['id'],
                     'mootaAccNo' => $tmpPayment['account_number'],

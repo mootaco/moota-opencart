@@ -38,17 +38,35 @@ class OrderFetcher implements FetchesTransactions
         $dbPrefix = DB_PREFIX;
 
         $sql = "
+            SELECT `value`, `serialized` FROM `{$dbPrefix}setting` 
+            WHERE `key` IN (
+                'config_complete_status',
+                'config_fraud_status_id',
+                'config_return_status_id'
+            )"
+        ;
+
+        $statusIds = array();
+
+        foreach ($this->db->query($sql)->rows as $row) {
+            $statusId = $row['serialized'] == 1
+                ? json_decode($row['value']) : $row['value'];
+
+            if (is_array($statusId)) {
+                $statusIds = array_merge($statusIds, $statusId);
+            } else {
+                $statusIds[] = $statusId;
+            }
+        }
+
+        asort($statusIds);
+        $statusIds = implode(', ', $statusIds);
+
+        $sql = "
             SELECT `order_id`, `invoice_no`, `invoice_prefix`
                 , `store_id`, `total`
             FROM `{$dbPrefix}order`
-            WHERE `order_status_id` NOT IN (
-                SELECT `value` FROM `{$dbPrefix}setting` 
-                WHERE `key` IN (
-                    'config_complete_status',
-                    'config_fraud_status_id',
-                    'config_return_status_id'
-                )
-            ) $whereInflowAmounts"
+            WHERE `order_status_id` NOT IN ($statusIds) $whereInflowAmounts"
         ;
 
         foreach ($this->db->query($sql)->rows as $row) {

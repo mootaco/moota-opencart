@@ -12,10 +12,6 @@ class ControllerPushMoota extends Controller
 {
     public function index()
     {
-        $this->load->model('account/customer');
-        $this->load->model('checkout/order');
-        $this->load->model('setting/setting');
-
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             http_response_code(405);
 
@@ -23,15 +19,14 @@ class ControllerPushMoota extends Controller
             return;
         }
 
-        $orderPaidStatusId = $this->model_setting_setting->getSettingValue(
-            'config_complete_status'
-        );
-        $orderPaidStatusId = json_decode($orderPaidStatusId);
-        $orderPaidStatusId = max($orderPaidStatusId);
+        $this->load->model('account/customer');
+        $this->load->model('checkout/order');
 
-        MootaConfig::fromArray( unserialize( $this->config->get(
+        $pluginConfig = unserialize( $this->config->get(
             'payment_mootapay_serialized'
-        ) ) );
+        ) );
+
+        MootaConfig::fromArray($pluginConfig);
 
         $handler = PushCallbackHandler::createDefault()
             ->setTransactionFetcher(new OrderFetcher( $this->db ))
@@ -53,6 +48,10 @@ class ControllerPushMoota extends Controller
                 );
 
                 if ( $payment['mootaAmount'] >= $payment['orderAmount'] ) {
+                    $orderPaidStatusId = $this->getStoreCompletedStatusId(
+                        $payment['storeId']
+                    );
+
                     $this->model_checkout_order->addOrderHistory(
                         $payment['orderId'],
                         $orderPaidStatusId,
@@ -68,7 +67,7 @@ class ControllerPushMoota extends Controller
 
         header('Content-Type: application/json');
 
-        echo json_encode($payments);
+        echo json_encode($statusData);
     }
 
     /**
@@ -101,5 +100,30 @@ class ControllerPushMoota extends Controller
                 , amount = '{$amount}'
                 , date_added = NOW()"
         );
+    }
+
+    protected function getStoreCompletedStatusId($storeId)
+    {
+        if (empty($this->model_setting_setting)) {
+            $this->load->model('setting/setting');
+        }
+
+        static $statusIds;
+
+        if (empty($statusIds)) {
+            $statusIds = array();
+        }
+
+        if ( empty($statusIds[ $storeId ]) ) {
+            $orderPaidStatusId = $this->model_setting_setting->getSettingValue(
+                'config_complete_status', $storeId
+            );
+
+            $orderPaidStatusId = json_decode($orderPaidStatusId);
+
+            $statusIds[ $storeId ] = max($orderPaidStatusId);
+        }
+
+        return $statusIds[ $storeId ];
     }
 }
