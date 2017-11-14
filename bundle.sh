@@ -14,3 +14,5 @@ cp -an ./{admin,catalog,system} $_DIR/upload/
 zip -q9 -r $_DIR.zip ./$_DIR/
 
 rm -rf `pwd`/$_DIR/ > /dev/null 2>&1
+
+echo 'Bundle is here: "'`pwd`'/mootapay.ocmod.zip"'

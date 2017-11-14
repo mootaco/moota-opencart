@@ -1,8 +1,8 @@
 <?php namespace Moota\Opencart;
 
-use Moota\SDK\Contracts\FetchesTransactions;
+use Moota\SDK\Contracts\Push\FetchesOrders;
 
-class OrderFetcher implements FetchesTransactions
+class OrderFetcher implements FetchesOrders
 {
     protected $db;
 
@@ -38,7 +38,7 @@ class OrderFetcher implements FetchesTransactions
         $dbPrefix = DB_PREFIX;
 
         $sql = "
-            SELECT `value`, `serialized` FROM `{$dbPrefix}setting` 
+            SELECT `value`, `serialized` FROM `{$dbPrefix}setting`
             WHERE `key` IN (
                 'config_complete_status',
                 'config_fraud_status_id',
@@ -64,7 +64,7 @@ class OrderFetcher implements FetchesTransactions
 
         $sql = "
             SELECT `order_id`, `invoice_no`, `invoice_prefix`
-                , `store_id`, `total`
+                , `customer_id`, `store_id`, `total`
             FROM `{$dbPrefix}order`
             WHERE `order_status_id` NOT IN ($statusIds) $whereInflowAmounts"
         ;

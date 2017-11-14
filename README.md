@@ -33,3 +33,7 @@ This script wil do the following (sequentially):
 - Deletes `mootapay.ocmod.zip`, if it already exists
 - Creates `mootapay.ocmod.zip` in plugin's root dit
 - Removes: `mootapay.ocmod/`
+
+## Installation
+- Download mootapay.ocmod.zip from the repo
+- Upload it to opencart's extension installation page
