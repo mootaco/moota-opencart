@@ -37,3 +37,6 @@ This script wil do the following (sequentially):
 ## Installation
 - Download mootapay.ocmod.zip from the repo
 - Upload it to opencart's extension installation page
+
+## Dokumentasi
+Lihat dokumentasi di [Wiki](https://github.com/mootaco/moota-opencart/wiki/Dokumentasi) untuk petunjuk instalasi, konfigurasi, dan lainnya
