@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../../..'
+require_once __DIR__ . '/../../../..'
     . '/system/library/moota-pay/vendor/autoload.php';
 
 use Moota\Opencart\OrderFetcher;
@@ -9,7 +9,7 @@ use Moota\Opencart\OrderMatcher;
 use Moota\SDK\Config as MootaConfig;
 use Moota\SDK\PushCallbackHandler;
 
-class ControllerPushMoota extends Controller
+class ControllerExtensionPaymentMoota extends Controller
 {
     public function index()
     {

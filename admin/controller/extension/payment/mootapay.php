@@ -72,7 +72,7 @@ class ControllerExtensionPaymentMootapay extends Controller
             'payment_mootapay_apitimeout' => MootaConfig::$apiTimeout,
             'payment_mootapay_env' => MootaConfig::$sdkMode,
             'payment_mootapay_push_url' => $baseUrl
-                . '?route=push/moota',
+                . '?route=extension/payment/moota',
 
             'header' => $this->load->controller('common/header'),
             'column_left' => $this->load->controller('common/column_left'),
@@ -124,15 +124,7 @@ class ControllerExtensionPaymentMootapay extends Controller
     public function install() {
         $this->load->model('setting/setting');$this->model_setting_setting->editSetting(
             self::SETTING_CODE, array(
-                self::SETTING_KEY => serialize(array(
-                    'apiKey' => MootaConfig::$apiKey,
-                    'apiTimeout' => MootaConfig::$apiTimeout,
-                    'sdkMode' => MootaConfig::$sdkMode,
-                    'serverAddress' => MootaConfig::$serverAddress,
-                    'useUniqueCode' => MootaConfig::$useUniqueCode,
-                    'uqCodePreffix' => MootaConfig::$uqCodePreffix,
-                    'uqCodeSuffix' => MootaConfig::$uqCodeSuffix,
-                ))
+                self::SETTING_KEY => serialize(MootaConfig::toArray())
             )
         );
     }

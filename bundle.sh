@@ -1,17 +1,20 @@
 #!/bin/sh
 # composer update --prefer-dist --no-dev
 
-_DIR='mootapay.ocmod'
+_name='mootapay.ocmod'
+_DIR='upload'
 
 rm -rf `pwd`/$_DIR/ > /dev/null 2>&1
 
 mkdir $_DIR
-mkdir $_DIR/upload
 
-cp -an ./{admin,catalog,system} $_DIR/upload/
+cp -an ./{admin,catalog,system} $_DIR/
 
-[[ -f $_DIR.zip ]] && rm -f $_DIR.zip
-zip -q9 -r $_DIR.zip ./$_DIR/
+rm -f ./$_DIR/LICENSE > /dev/null 2>&1
+
+rm -f $_name.zip > /dev/null 2>&1
+
+zip -qr9 $_name.zip ./$_DIR
 
 rm -rf `pwd`/$_DIR/ > /dev/null 2>&1
 
