@@ -4,7 +4,7 @@ require_once __DIR__ . '/../../../..'
     . '/system/library/moota-pay/vendor/autoload.php';
 
 use Moota\Opencart\OrderFetcher;
-use Moota\Opencart\OrderFullfiler;
+use Moota\Opencart\OrderFulfiller;
 use Moota\Opencart\OrderMatcher;
 use Moota\SDK\Config as MootaConfig;
 use Moota\SDK\PushCallbackHandler;
@@ -33,7 +33,7 @@ class ControllerExtensionPaymentMoota extends Controller
         $handler = PushCallbackHandler::createDefault()
             ->setOrderFetcher(new OrderFetcher( $this->db ))
             ->setOrderMatcher(new OrderMatcher)
-            ->setOrderFullfiler(new OrderFullfiler(
+            ->setOrderFulfiller(new OrderFulfiller(
                 $this->model_account_customer,
                 $this->model_checkout_order,
                 $this->model_setting_setting

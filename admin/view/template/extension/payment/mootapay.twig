@@ -1,7 +1,7 @@
 {{ header }}{{ column_left }}
 <div id="content">
   <style>
-    label.required::before { content: '*'; color: red; }
+    label.required::before { content: '*'; color: #FF4136; }
     .help-block { font-style: italic; }
     small { font-size: 85%; }
   </style>
@@ -50,90 +50,287 @@
         <form class="form-horizontal" action="{{ action }}" method="post"
           enctype="multipart/form-data" id="form-payment"
         >
-          <div class="form-group">
-            <label class="col-sm-2 control-label text-right required"
-              for="input-apikey"
-            >{{ entry_apikey }}</label>
+            {# env #}
+            <div class="form-group">
+                <label class="col-sm-2 control-label text-right required"
+                >{{ entry_env }}</label>
 
-            <div class="col-sm-10">
-              <input class="form-control"
-                name="payment_mootapay_apikey"
-                id="input-apikey"
-                required="required"
-                value="{{ payment_mootapay_apikey }}"
-              />
+                <div class="col-sm-2">
+                    <label class="control-label">
+                        <input
+                                name="payment_mootapay_env"
+                                required="required"
+                                type="radio"
+                                value="production"
+                                {% if payment_mootapay_env == 'production' %}
+                                    checked="checked"
+                                {% endif %}
+                        /> {{ entry_env_prod }}
+                    </label>
+                </div>
 
-              <small class="help-block">{{ help_apikey }}</small>
+                <div class="col-sm-2">
+                    <label class="control-label">
+                        <input
+                                name="payment_mootapay_env"
+                                required="required"
+                                type="radio"
+                                value="testing"
+                                {% if payment_mootapay_env == 'testing' %}
+                                    checked="checked"
+                                {% endif %}
+                        /> {{ entry_env_dev }}
+                    </label>
+                </div>
             </div>
-          </div>
+            {# / env #}
 
-          <div class="form-group">
+            {# pushUrl #}
+            <div class="form-group">
+                <label class="col-sm-2 control-label text-right"
+                >{{ entry_push_url }}</label>
+
+                <div class="col-sm-10">
+                    <input
+                            class="form-control"
+                            name="payment_mootapay_push_url"
+                            readonly="readonly"
+                            value="{{ payment_mootapay_push_url }}"
+                    />
+
+                    <small class="help-block">({{ help_push_url }})</small>
+                </div>
+            </div>
+            {# / pushUrl #}
+
+            {# apiKey #}
+            <div class="form-group">
+                <label class="col-sm-2 control-label text-right required"
+                    for="input-apikey"
+                >{{ entry_apikey }}</label>
+
+                <div class="col-sm-10">
+                    <input class="form-control"
+                        name="payment_mootapay_apikey"
+                        id="input-apikey"
+                        required="required"
+                        value="{{ payment_mootapay_apikey }}"
+                    />
+
+                    <small class="help-block">{{ help_apikey }}</small>
+                </div>
+            </div>
+            {# / apiKey #}
+
+            {# apiTimeout #}
+            <div class="form-group">
             <label class="col-sm-2 control-label text-right required"
-              for="input-apitimeout"
+            for="input-apitimeout"
             >{{ entry_apitimeout }}
 
-              <small class="help-block">({{ help_apitimeout }})</small>
+            <small class="help-block">({{ help_apitimeout }})</small>
             </label>
 
             <div class="col-sm-10">
-              <input class="form-control"
-                name="payment_mootapay_apitimeout"
-                id="input-apitimeout"
-                required="required"
-                value="{{ payment_mootapay_apitimeout }}"
-              />
+            <input class="form-control"
+            name="payment_mootapay_apitimeout"
+            id="input-apitimeout"
+            required="required"
+            value="{{ payment_mootapay_apitimeout }}"
+            />
             </div>
-          </div>
-
-          <div class="form-group">
-            <label class="col-sm-2 control-label text-right required"
-            >{{ entry_env }}</label>
-
-            <div class="col-sm-2">
-              <label class="control-label">
-                <input
-                  name="payment_mootapay_env"
-                  required="required"
-                  type="radio"
-                  value="production"
-                  {% if payment_mootapay_env == 'production' %}
-                  checked="checked"
-                  {% endif %}
-                /> {{ entry_env_prod }}
-              </label>
             </div>
+            {# / apiTimeout #}
 
-            <div class="col-sm-2">
-              <label class="control-label">
-                <input
-                  name="payment_mootapay_env"
-                  required="required"
-                  type="radio"
-                  value="testing"
-                  {% if payment_mootapay_env == 'testing' %}
-                  checked="checked"
-                  {% endif %}
-                /> {{ entry_env_dev }}
-              </label>
+            {# completedStatus #}
+            <div class="form-group">
+                <label class="col-sm-2 control-label text-right required"
+                    for="input-completedstatus"
+                >{{ entry_completedstatus }}
+                </label>
+
+                <div class="col-sm-10">
+                    <select class="form-control"
+                            name="payment_mootapay_completedstatus"
+                            id="input-completedstatus"
+                            required
+                    >
+                        <option disabled="disabled"
+                         {% if payment_mootapay_completedstatus == null %}
+                               selected="selected"
+                         {% endif %}
+                        >-- Pilih Satu --</option>
+
+                        {% for status in orderStatuses %}
+                        <option value="{{ status.id }}"
+                            {% if payment_mootapay_completedstatus == status.id %}
+                                selected="selected"
+                            {% endif %}
+                        >{{ status.name }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <small class="help-block"
+                    >{{ help_completedstatus }}</small>
+                </div>
             </div>
-          </div>
+            {# / completedStatus #}
 
-          <div class="form-group">
-            <label class="col-sm-2 control-label text-right"
-            >{{ entry_push_url }}</label>
+            {# onCompleteSendMail #}
+            <div class="form-group">
+                <label class="col-sm-2 control-label text-right required"
+                >{{ entry_oncompletesendmail }}</label>
 
-            <div class="col-sm-10">
-              <input
-                class="form-control"
-                name="payment_mootapay_push_url"
-                readonly="readonly"
-                value="{{ payment_mootapay_push_url }}"
-              />
+                <div class="col-sm-2">
+                    <label class="control-label">
+                        <input
+                                name="payment_mootapay_oncompletesendmail"
+                                required="required"
+                                type="radio"
+                                value="1"
+                            {% if
+                                payment_mootapay_oncompletesendmail != null
+                                and payment_mootapay_oncompletesendmail == 1
+                            %}
+                                checked="checked"
+                            {% endif %}
+                        /> {{ entry_yes }}
+                    </label>
+                </div>
 
-              <small class="help-block">({{ help_push_url }})</small>
+                <div class="col-sm-2">
+                    <label class="control-label">
+                        <input
+                                name="payment_mootapay_oncompletesendmail"
+                                required="required"
+                                type="radio"
+                                value="0"
+                            {% if
+                                payment_mootapay_oncompletesendmail != null
+                                and payment_mootapay_oncompletesendmail == 0
+                            %}
+                                checked="checked"
+                            {% endif %}
+                        /> {{ entry_no }}
+                    </label>
+                </div>
             </div>
-          </div>
+            {# / onCompleteSendMail #}
 
+            {# oldestOrder #}
+            <div class="form-group">
+                <label class="col-sm-2 control-label text-right required"
+                       for="input-oldestorder"
+                >{{ entry_oldestorder }}
+                </label>
+
+                <div class="col-sm-10">
+                    <input class="form-control"
+                           name="payment_mootapay_oldestorder"
+                           id="input-oldestorder"
+                           required="required"
+                           value="{{ payment_mootapay_oldestorder }}"
+                    />
+
+                    <small class="help-block">{{ help_oldestorder }}</small>
+                </div>
+            </div>
+            {# / oldestOrder #}
+
+            {# useUniqueCode #}
+            <div class="form-group">
+                <label class="col-sm-2 control-label text-right required"
+                >{{ entry_useuq }}</label>
+
+                <div class="col-sm-2">
+                    <label class="control-label">
+                        <input
+                                name="payment_mootapay_useuq"
+                                required="required"
+                                type="radio"
+                                value="1"
+                                {% if payment_mootapay_useuq == 1 %}
+                                    checked="checked"
+                                {% endif %}
+                        /> {{ entry_yes }}
+                    </label>
+                </div>
+
+                <div class="col-sm-2">
+                    <label class="control-label">
+                        <input
+                                name="payment_mootapay_useuq"
+                                required="required"
+                                type="radio"
+                                value="0"
+                                {% if payment_mootapay_useuq == 0 %}
+                                    checked="checked"
+                                {% endif %}
+                        /> {{ entry_no }}
+                    </label>
+                </div>
+            </div>
+            {# / useUniqueCode #}
+
+            {# uqCodeLabel #}
+            <div class="form-group">
+                <label class="col-sm-2 control-label text-right required"
+                       for="input-uqcodelabel"
+                >{{ entry_uqcodelabel }}
+                </label>
+
+                <div class="col-sm-10">
+                    <input class="form-control"
+                           name="payment_mootapay_uqcodelabel"
+                           id="input-uqcodelabel"
+                           required="required"
+                           value="{{ payment_mootapay_uqcodelabel }}"
+                    />
+
+                    <small class="help-block">{{ help_uqcodelabel }}</small>
+                </div>
+            </div>
+            {# / uqCodeLabel #}
+
+            {# uqCodeMin #}
+            <div class="form-group">
+                <label class="col-sm-2 control-label text-right required"
+                       for="input-uqcodemin"
+                >{{ entry_uqcodemin }}
+                </label>
+
+                <div class="col-sm-10">
+                    <input class="form-control"
+                           name="payment_mootapay_uqcodemin"
+                           id="input-uqcodemin"
+                           required="required"
+                           value="{{ payment_mootapay_uqcodemin }}"
+                    />
+
+                    <small class="help-block">{{ help_uqcodemin }}</small>
+                </div>
+            </div>
+            {# / uqCodeMin #}
+
+            {# uqCodeMax #}
+            <div class="form-group">
+                <label class="col-sm-2 control-label text-right required"
+                       for="input-uqcodemax"
+                >{{ entry_uqcodemax }}
+                </label>
+
+                <div class="col-sm-10">
+                    <input class="form-control"
+                           name="payment_mootapay_uqcodemax"
+                           id="input-uqcodemax"
+                           required="required"
+                           value="{{ payment_mootapay_uqcodemax }}"
+                    />
+
+                    <small class="help-block">{{ help_uqcodemax }}</small>
+                </div>
+            </div>
+            {# / uqCodeMax #}
         </form>
       </div>
     </div>
