@@ -31,9 +31,10 @@ class ControllerExtensionPaymentMoota extends Controller
         MootaConfig::fromArray($pluginConfig);
 
         $handler = PushCallbackHandler::createDefault()
-            ->setOrderFetcher(new OrderFetcher( $this->db ))
+            ->setOrderFetcher(new OrderFetcher( $this->db, $this->config ))
             ->setOrderMatcher(new OrderMatcher)
             ->setOrderFulfiller(new OrderFulfiller(
+                $this->config,
                 $this->model_account_customer,
                 $this->model_checkout_order,
                 $this->model_setting_setting

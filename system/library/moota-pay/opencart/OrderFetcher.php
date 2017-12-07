@@ -4,10 +4,12 @@ use Moota\SDK\Contracts\Push\FetchesOrders;
 
 class OrderFetcher implements FetchesOrders
 {
+    protected $config;
     protected $db;
 
-    public function __construct($db)
+    public function __construct($db, $config)
     {
+        $this->config = $config;
         $this->db = $db;
     }
 
@@ -28,7 +30,7 @@ class OrderFetcher implements FetchesOrders
             $whereInflowAmounts = array();
 
             foreach ($inflowAmounts as $key => $value) {
-                $whereInflowAmounts[ $key ] = (float) $value;
+                $whereInflowAmounts[] = (float) $value;
             }
 
             $whereInflowAmounts = implode(',', $whereInflowAmounts);
@@ -62,11 +64,22 @@ class OrderFetcher implements FetchesOrders
         asort($statusIds);
         $statusIds = implode(', ', $statusIds);
 
+        $config = unserialize($this->config->get('payment_mootapay_serialized'));
+
+        $oldestOrder = $config['oldestOrder'];
+        $oldestOrder = $oldestOrder > 7 ?: 7;
+        $oldestOrder = $oldestOrder < 1 ?: 7;
+        $oldestOrder = date(
+            'Y-m-d H:i:s', strtotime("-{$oldestOrder} days")
+        );
+
         $sql = "
             SELECT `order_id`, `invoice_no`, `invoice_prefix`
                 , `customer_id`, `store_id`, `total`
             FROM `{$dbPrefix}order`
-            WHERE `order_status_id` NOT IN ($statusIds) $whereInflowAmounts"
+            WHERE `date_added` >= '{$oldestOrder}'
+              AND `order_status_id` NOT IN ($statusIds)
+              $whereInflowAmounts"
         ;
 
         foreach ($this->db->query($sql)->rows as $row) {

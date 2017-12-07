@@ -38,7 +38,9 @@ class ControllerExtensionPaymentMootapay extends Controller
 
         $this->load->language('extension/payment/mootapay');
 
-        $this->document->setTitle('MOOTA');
+        $headingTitle = $this->language->get('heading_title');
+
+        $this->document->setTitle($headingTitle);
 
         // load setting data from settings table
         // that has a `code` of: `payment_mootapay` (SETTING_CODE)
@@ -63,7 +65,7 @@ class ControllerExtensionPaymentMootapay extends Controller
                     (int) $_POST['payment_mootapay_completedstatus'],
 
                 'onCompleteSendMail' =>
-                    (int) $_POST['payment_mootapay_oncompletesendmail'],
+                    (bool) $_POST['payment_mootapay_oncompletesendmail'],
 
                 MOOTA_OLDEST_ORDER =>
                     (int) $_POST['payment_mootapay_oldestorder'],
@@ -104,12 +106,13 @@ class ControllerExtensionPaymentMootapay extends Controller
 
             $this->response->redirect($this->url->link(
                 'extension/payment/mootapay',
-                "user_token={$userToken}&type=payment",
+                "user_token={$userToken}",
                 true
             ));
         }
 
         $viewData = array(
+            'heading_title' => $headingTitle,
             'payment_mootapay_env' => $moduleConfig[ MOOTA_ENV ],
             'payment_mootapay_push_url' => $baseUrl
                 . '?route=extension/payment/moota',
@@ -189,14 +192,17 @@ class ControllerExtensionPaymentMootapay extends Controller
         $config[ MOOTA_UQ_MIN ] = 1;
         $config[ MOOTA_UQ_MAX ] = 999;
 
-        $this->load->model('setting/setting');$this->model_setting_setting
+        $this->load->model('setting/setting');
+
+        $this->model_setting_setting
             ->editSetting( self::SETTING_CODE, array(
                 self::SETTING_KEY => serialize($config)
             ) );
     }
 
     public function uninstall() {
-        $this->load->model('setting/setting');$this->model_setting_setting
+        $this->load->model('setting/setting');
+        $this->model_setting_setting
             ->deleteSetting(self::SETTING_CODE);
     }
 }

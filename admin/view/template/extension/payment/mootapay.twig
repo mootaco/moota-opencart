@@ -190,7 +190,7 @@
                                 value="1"
                             {% if
                                 payment_mootapay_oncompletesendmail != null
-                                and payment_mootapay_oncompletesendmail == 1
+                                and payment_mootapay_oncompletesendmail == true
                             %}
                                 checked="checked"
                             {% endif %}
@@ -206,8 +206,7 @@
                                 type="radio"
                                 value="0"
                             {% if
-                                payment_mootapay_oncompletesendmail != null
-                                and payment_mootapay_oncompletesendmail == 0
+                                payment_mootapay_oncompletesendmail == false
                             %}
                                 checked="checked"
                             {% endif %}

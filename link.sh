@@ -29,8 +29,10 @@ then
 
   export -f _link
 
-  find admin -maxdepth 10 -type f \( ! -iname ".*" \) -exec bash -c '_link "$0"' {} \;
-  find catalog -maxdepth 10 -type f \( ! -iname ".*" \) -exec bash -c '_link "$0"' {} \;
+  find admin -maxdepth 10 -type f \( ! -iname ".*" \) \
+    -exec bash -c '_link "$0"' {} \;
+  find catalog -maxdepth 10 -type f \( ! -iname ".*" \) \
+    -exec bash -c '_link "$0"' {} \;
 
   _link system/library/moota-pay
 else
