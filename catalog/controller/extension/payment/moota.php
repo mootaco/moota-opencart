@@ -6,6 +6,7 @@ require_once __DIR__ . '/../../../..'
 use Moota\Opencart\OrderFetcher;
 use Moota\Opencart\OrderFulfiller;
 use Moota\Opencart\OrderMatcher;
+use Moota\Opencart\DuplicateFinder;
 use Moota\SDK\Config as MootaConfig;
 use Moota\SDK\PushCallbackHandler;
 
@@ -39,6 +40,7 @@ class ControllerExtensionPaymentMoota extends Controller
                 $this->model_checkout_order,
                 $this->model_setting_setting
             ))
+            ->setDupeFinder(new DuplicateFinder($this->config))
         ;
 
         $statusData = $handler->handle();
