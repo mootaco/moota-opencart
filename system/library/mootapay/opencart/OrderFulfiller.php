@@ -32,18 +32,11 @@ class OrderFulfiller implements FulfillsOrder
         $completedStatus = $config[ MOOTA_COMPLETED_STATUS ];
 
         try {
-            $this->customerModel->addTransaction(
-                $order['customerId'],
-                "MootaPay: Payment Applied for OrderID #{$order['orderId']}",
-                $order['mootaAmount'],
-                $order['orderId']
-            );
-
             if ( $order['mootaAmount'] >= $order['orderAmount'] ) {
                 $this->orderModel->addOrderHistory(
                     $order['orderId'],
                     $completedStatus,
-                    'MootaPay: Order fully paid',
+                    "MootaPay: Order fully paid, MootaID: {$order['mootaId']}",
                     $notifyCustomer, // notify
                     false // override
                 );
