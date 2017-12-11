@@ -1,7 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../../../..'
-    . '/system/library/moota-pay/vendor/autoload.php';
+    . '/system/library/mootapay/vendor/autoload.php';
 
 use Moota\SDK\Config as MootaConfig;
 

@@ -11,7 +11,7 @@
     ],
     "minimum-stability": "stable",
     "config": {
-        "vendor-dir": "system/library/moota-pay/vendor"
+        "vendor-dir": "system/library/mootapay/vendor"
     },
     "repositories": [
         {
@@ -24,7 +24,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Moota\\Opencart\\": "system/library/moota-pay/opencart"
+            "Moota\\Opencart\\": "system/library/mootapay/opencart"
         }
     }
 }

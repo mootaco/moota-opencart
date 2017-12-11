@@ -1,7 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../../../..'
-    . '/system/library/moota-pay/vendor/autoload.php';
+    . '/system/library/mootapay/vendor/autoload.php';
 
 class ModelExtensionTotalMootapay extends Model {
     public function getTotal($totalData) {

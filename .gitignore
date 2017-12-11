@@ -1,6 +1,8 @@
 mootapay.ocmod/
 system/library/moota-pay/vendor/
 !system/library/moota-pay/opencart/
+system/library/mootapay/vendor/
+!system/library/mootapay/opencart/
 
 *.db
 .DS_Store
